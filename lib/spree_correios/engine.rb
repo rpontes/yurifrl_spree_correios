@@ -6,6 +6,11 @@ module SpreeCorreios
 
     config.autoload_paths += %W(#{config.root}/lib)
 
+    initializer "spree.register.correios_calculator", after: "spree.register.calculators" do |app|
+        require 'spree/correios'
+        app.config.spree.calculators.shipping_methods += [Spree::Calculator::Shipping::SEDEX, Spree::Calculator::Shipping::PAC, Spree::Calculator::Shipping::SEDEX10]
+    end
+
     # use rspec for tests
     config.generators do |g|
       g.test_framework :rspec
