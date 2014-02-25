@@ -9,6 +9,8 @@ module Spree
             attr_reader :delivery_time
 
             def compute(package)
+                #TODO There is some bug here
+                abort "FUCK"
                 return unless package.present?
                 order = package.order
 
@@ -18,8 +20,8 @@ module Spree
                 package.contents.each do |item|
                     item = item.variant
                     weight = item.weight.to_f
-                    depth  = item.depth.to_f
-                    width  = item.width.to_f
+                    depth = item.depth.to_f
+                    width = item.width.to_f
                     height = item.height.to_f
                     package_item = ::Correios::Frete::PacoteItem.new(peso: weight, comprimento: depth, largura: width, altura: height)
                     pack.add_item(package_item)
