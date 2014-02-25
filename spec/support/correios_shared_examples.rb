@@ -1,3 +1,4 @@
+abort "Hello 1"
 shared_examples_for "correios calculator" do
     before { @calculator = subject.class.new }
 
