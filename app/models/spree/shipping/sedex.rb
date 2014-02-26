@@ -2,7 +2,7 @@ module Spree
     module Calculator::Shipping
         class SEDEX < CorreiosBaseCalculator
             def self.description
-                "SEDEX"
+                'SEDEX'
             end
 
             def shipping_method

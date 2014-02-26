@@ -8,44 +8,49 @@ module Spree
             # preference :receive_in_hands, :boolean, default: false
             attr_reader :delivery_time
 
+            # TODO Make it receive all the extra values
             def compute(package)
-                begin
-                    #puts "PACK = " + package.contents.inspect
                     return unless package.present?
                     order = package.order
-
                     return unless order.line_items.present?
                     pack = ::Correios::Frete::Pacote.new
+
                     package.contents.each do |item|
-                        item = item.variant
-                        weight = item.weight.to_f
-                        depth = item.depth.to_f
-                        width = item.width.to_f
-                        height = item.height.to_f
+                        item    = item.variant
+                        weight  = item.weight.to_f
+                        depth   = item.depth.to_f
+                        width   = item.width.to_f
+                        height  = item.height.to_f
                         package_item = ::Correios::Frete::PacoteItem.new(peso: weight, comprimento: depth, largura: width, altura: height)
                         pack.add_item(package_item)
                     end
 
                     calculator = ::Correios::Frete::Calculador.new do |c|
-                        # TODO Is not catching ZIP Code
-                        c.cep_origem = package.stock_location.zipcode
-                        c.cep_destino = order.ship_address.zipcode
-                        c.encomenda = pack
-                        # c.valor_declarado = order.amount.to_f if prefers?(:declared_value)
-                        # c.mao_propria = prefers?(:receive_in_hands)
-                        # c.aviso_recebimento = prefers?(:receipt_notification)
-                        # c.codigo_empresa = preferred_token if preferred_token.present?
-                        # c.senha = preferred_password if preferred_password.present?
+                        # TODO cheack if the stock_location.zipcode is set
+                        c.cep_origem            = package.stock_location.zipcode
+                        c.cep_destino           = order.ship_address.zipcode
+                        c.encomenda             = pack
+                        # c.valor_declarado     = order.amount.to_f if prefers?(:declared_value)
+                        # c.mao_propria         = prefers?(:receive_in_hands)
+                        # c.aviso_recebimento   = prefers?(:receipt_notification)
+                        # c.codigo_empresa      = preferred_token if preferred_token.present?
+                        # c.senha               = preferred_password if preferred_password.present?
                     end
-                    # TODO is not passing shipping_method
-                    webservice = calculator.calculate(:shipping_method)
-                    return 0.0 if webservice.erro?
+
+                    webservice = nil
+
+                    begin
+                        if self.respond_to?('shipping_method')
+                            # the method calculate is not from this project
+                            webservice = calculator.calculate(self.shipping_method)
+                        end
+                    rescue
+                        #TODO Throw exception if CEP not set
+                    end
+
+                    return 0.0 if webservice.nil?
                     @delivery_time = webservice.prazo_entrega
                     webservice.valor
-                rescue
-                    raise
-                    # TODO Catch Error
-                end
             end
 
             def available?(order)

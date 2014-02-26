@@ -13,9 +13,6 @@ module SpreeCorreios
             app.config.spree.calculators.shipping_methods += [Spree::Calculator::Shipping::SEDEX, Spree::Calculator::Shipping::PAC, Spree::Calculator::Shipping::SEDEX10]
         end
 
-        # TODO to be appended and catch
-        # TODO change input values
-
         # use rspec for tests
         config.generators do |g|
             g.test_framework :rspec
